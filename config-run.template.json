@@ -1,0 +1,12 @@
+{
+    "temperature": 0.5,
+    "top_p": 0.95,
+    "top_k": 50,
+    "num_beams": 1,
+    "max_new_tokens": 50,
+    "do_sample": true,
+    "repetition_penalty": 1.0,
+    "length_penalty": 1.0,
+    "early_stopping": false,
+    "seed": 42
+}
