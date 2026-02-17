@@ -19,7 +19,8 @@ def import_datasets(dataset_json_path = "datasets.json"):
         path = element.get("path", None)
         split = element.get("split", None)
         weight = float(element.get("weight", 1.0))
-        data = Data(element["name"], element["config"], element["type"], path=path, split=split, weight=weight)
+        use_hg_auth = bool(element.get("use_hg_auth", False))
+        data = Data(element["name"], element["config"], element["type"], path=path, split=split, weight=weight, use_hg_auth=use_hg_auth)
         data_instances.append(data)
         
         data.load()

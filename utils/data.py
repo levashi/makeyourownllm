@@ -1,7 +1,7 @@
 import os
 from datasets import load_dataset
 import logging
-from tqdm import tqdm
+import warnings
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -10,20 +10,23 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+
 class Data:
-    def __init__(self, name, config=None, type="text", path=None, weight=1.0, split=None):
+    def __init__(self, name, config=None, type="text", path=None, weight=1.0, split=None, use_hg_auth=False):
         self.name = name
         self.config = config
         self.type = type
         self.path = path
         self.weight = weight
         self.split = split  # ← Format: "train[:1000]" ou "train[:10%]"
+        self.use_hg_auth = use_hg_auth # need "huggingface-cli login"
         
         self.train = []
         self.test = []
         self.val = []
         
         self.loaded = False
+    
     
     def _parse_split_notation(self, split_str):
         """
@@ -125,15 +128,26 @@ class Data:
             logger.info(f"Loaded {self.name} from file: {len(self.train[0])} train, {len(self.val[0])} val, {len(self.test[0])} test")
         
         else:
-            # Chargement depuis HuggingFace
+            # Loading from HuggingFace
             if self.split:
-                # Parse le split personnalisé
+                # Split parse
                 split_name, slice_info = self._parse_split_notation(self.split)
                 
                 logger.info(f"Loading {self.name} with custom split: {self.split}")
-                dataset = load_dataset(self.name, self.config, split=split_name)
+                try: 
+                    dataset = load_dataset(self.name, self.config, split=split_name, token=self.use_hg_auth)
+                except ConnectionError as e:
+                    msg = (
+                        f"Failed to load the dataset '{self.name}'.\n"
+                        f"Reason: {str(e)}\n\n"
+                        f"To use authentication, first log in via `hf auth login`.\n"
+                        f"Make sure your token is valid and you have the necessary access rights.\n"
+                        f"If you have not enabled authentication but see this error, "
+                        f"try setting the `use_hg_auth` flag in your datasets config file."
+                    )
+                    raise ConnectionError(msg) from e
+
                 
-                # Appliquer le slice
                 dataset = self._apply_slice(dataset, slice_info)
                 
                 # Tout mettre dans train par défaut (puisque c'est un subset custom)
@@ -142,8 +156,19 @@ class Data:
             
             else:
                 # Chargement standard (tous les splits)
-                dataset = load_dataset(self.name, self.config)
-                
+                try:
+                    dataset = load_dataset(self.name, self.config, token=self.use_hg_auth)
+                except ConnectionError as e:
+                    msg = (
+                        f"Failed to load the dataset '{self.name}'.\n"
+                        f"Reason: {str(e)}\n\n"
+                        f"To use authentication, first log in via `hf auth login login`.\n"
+                        f"Make sure your token is valid and you have the necessary access rights.\n"
+                        f"If you have not enabled authentication but see this error, "
+                        f"try setting the `use_hg_auth` flag in your datasets config file."
+                    )
+                    raise ConnectionError(msg) from e
+
                 if "train" in dataset.keys():
                     self.train.append(dataset["train"])
                 if "test" in dataset.keys():
