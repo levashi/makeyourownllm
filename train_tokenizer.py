@@ -4,7 +4,8 @@ import dataset_manager
 from tokenizers import Tokenizer
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
-from tokenizers.pre_tokenizers import Metaspace, Whitespace
+from tokenizers.pre_tokenizers import Metaspace as MetaspacePre, Whitespace as WhitespacePre
+from tokenizers.decoders import Metaspace as MetaspaceDec, BPEDecoder
 from tokenizers.normalizers import NFD, NFC
 from tokenizers import normalizers
 import logging
@@ -28,19 +29,19 @@ def train_tokenizer(tokenizer_path, vocab_size, lang:Literal["fr", "en"]="en"):
     )
     logging.info(f"Training tokenizer for language: {lang}")
     if lang == "fr":
-        tokenizer.pre_tokenizer = Metaspace()
+        tokenizer.pre_tokenizer = MetaspacePre()
         tokenizer.normalizer = normalizers.Sequence([
             NFD(),
             NFC()
         ])
     else:
-        tokenizer.pre_tokenizer = Whitespace()
+        tokenizer.pre_tokenizer = WhitespacePre()
         
     tokenizer.train_from_iterator(txt_for_tokenizer, trainer)
     if lang == "fr":
-        tokenizer.decoder = Metaspace()
+        tokenizer.decoder = MetaspaceDec()
     else:
-        tokenizer.decoder = Whitespace()
+        tokenizer.decoder = BPEDecoder()
     tokenizer.save(tokenizer_path)
     logging.info(f"Tokenizer saved at {tokenizer_path}")
     # CHECK POST-TRAINING
