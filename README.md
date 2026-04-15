@@ -13,8 +13,6 @@ This project provides a complete pipeline to:
 - Track model performance with evaluation metrics
 
 ## Features
-
-✨ **Key Features:**
 - **Custom Transformer Architecture** - Causal self-attention with multi-head attention
 - **Flexible Configuration** - Easily adjustable model hyperparameters via JSON
 - **Dataset Management** - Support for multiple datasets from Hugging Face
@@ -23,32 +21,19 @@ This project provides a complete pipeline to:
 - **Tokenizer Training** - BPE tokenizer training for both English and French
 - **Evaluation Metrics** - Per-epoch validation and prompt generation tracking
 
-## Project Structure
-
-```
-makeyourownllm/
-├── train.py                 # Main training script
-├── run.py                   # Inference/generation script
-├── train_tokenizer.py       # Tokenizer training
-├── custom_data.py           # Dataset handling utilities
-├── dataset_manager.py       # Dataset management
-├── config.json              # Model configuration
-├── config-run.template.json # Template for inference config
-├── datasets.json            # Dataset sources configuration
-├── requirements.txt         # Python dependencies
-├── logs/                    # Training logs directory
-├── utils/                   # Utility functions
-└── myllm0_1/               # Example trained model directory
+**Install**
+```bash
+git clone https://github.com/levashi/makeyourownllm
+cd makeyourownllm
 ```
 
-## Requirements
-
+```bash
+python3 -m venv venv
+source venv/bin/activate
 ```
-Python 3.8+
-PyTorch with CUDA support (recommended)
-```
+> [!NOTE]
+> Please install PyTorch yourself for a GPU integration
 
-**Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
